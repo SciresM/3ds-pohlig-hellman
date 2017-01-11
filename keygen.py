@@ -35,6 +35,16 @@ def generate_keys(d, n):
     print('6.X 0x2F KeyY: %s' % keys[:0x20])
     print('7.x 0x25 KeyX: %s' % keys[0x20:])
 
+def is_key_valid(d, n):
+    e = 0x10001
+    if type(d) == str:
+        d = int(d, 16)
+    if type(n) == str:
+        n = int(n, 16)
+
+    test_vector = 0xCAFEBABE
+    return pow(pow(test_vector, d, n), e, n) == test_vector
+
 if __name__ == '__main__':
     if not retail_exponent and not dev_exponent:
         print('Neither retail nor dev exponents are set up!')
@@ -43,7 +53,13 @@ if __name__ == '__main__':
 
     if retail_exponent:
         print('Retail:')
-        generate_keys(retail_exponent, retail_modulus)
+        if is_key_valid(retail_exponent, retail_modulus):
+            generate_keys(retail_exponent, retail_modulus)
+        else:
+            print('Retail exponent is incorrect. Double check it?')
     if dev_exponent:
         print('Dev:')
-        generate_keys(dev_exponent, dev_modulus)
+        if is_key_valid(dev_exponent, dev_modulus):
+            generate_keys(dev_exponent, dev_modulus)
+        else:
+            print('Retail exponent is incorrect. Double check it?')
