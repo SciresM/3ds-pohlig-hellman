@@ -62,4 +62,4 @@ if __name__ == '__main__':
         if is_key_valid(dev_exponent, dev_modulus):
             generate_keys(dev_exponent, dev_modulus)
         else:
-            print('Retail exponent is incorrect. Double check it?')
+            print('Dev exponent is incorrect. Double check it?')
