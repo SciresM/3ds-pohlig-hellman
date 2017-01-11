@@ -226,7 +226,7 @@ class Mod(FiniteGroup, ParamClass): #subclass of classes above
         (g,x,y) = xgcd(self.value, self.m)
         if g == 1:
             return Mod(x, self.m)
-        raise ValueError, 'Value not invertible'
+        raise ValueError('Value not invertible')
 
 
 def doctests():

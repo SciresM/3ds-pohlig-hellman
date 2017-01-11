@@ -2,6 +2,7 @@
 from __future__ import print_function
 
 import sys
+from binascii import hexlify, unhexlify
 from os.path import basename, splitext
 from crt import ChineseRemainder # http://anh.cs.luc.edu/331/code/crt.py
 from xgcd import xgcd
@@ -45,9 +46,9 @@ def getPrivExponent(signature):
         val = signature # val starts at signature
         base = smooth # base starts at smooth
         mult = 1
-        lookup = [pow(root, j * smooth / prime, modulus) for j in range(prime)] # create lookup table for modular reductions
+        lookup = [pow(root, j * smooth // prime, modulus) for j in range(prime)] # create lookup table for modular reductions
         for n in range(1,pows[i]+1):
-            base /= prime # base = smooth / pow(prime, n), this is faster.
+            base //= prime # base = smooth / pow(prime, n), this is faster.
             c = lookup.index(pow(val, base, modulus)) # find coefficient for pow(prime, n) via lookup table
             val = val * pow(invlookup[c], mult, modulus) % modulus # reduce signature by relevant amount
             coefficients[i] += c * mult # coefficient is Cn * pow(prime, n).
@@ -90,7 +91,7 @@ if __name__ == '__main__':
         print('Error: signature must be 0x100 bytes for RSA-2048!')
         sys.exit(-1)
     
-    sig_num = int(sig.encode('hex'), 16)
+    sig_num = int(hexlify(sig), 16)
     print('Calculating discrete log for %X...' % sig_num)
     privs = getPrivExponent(sig_num)
     privs_hex = ['%0512X' % x for x in privs]
@@ -99,10 +100,10 @@ if __name__ == '__main__':
     
     bn = splitext(basename(sys.argv[1]))[0]
     if len(privs) == 1:
-        save_bin('%s_exp.bin' % bn, privs_hex[0].decode('hex'))
+        save_bin('%s_exp.bin' % bn, unhexlify(privs_hex[0]))
     else:
         for i in range(len(privs)):
-            save_bin('%s_exp_%d.bin' % (bn, i), privs_hex[i].decode('hex'))
+            save_bin('%s_exp_%d.bin' % (bn, i), unhexlify(privs_hex[i]))
     
     print('All done!')
     
