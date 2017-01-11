@@ -18,9 +18,10 @@ def ChineseRemainder(pairs):
     3 3
     1 1
     '''
-    (a, m)=list(pairs)[0]
-    for (b,p) in list(pairs)[1:]:
-        k=((b-a)*xgcd(m,p)[1]) % p #moduli coprime so inverse exists for m mod p
+    pairs = list(pairs)
+    (a, m)= pairs[0]
+    for (b,p) in pairs[1:]:
+        k=(((b-a)*xgcd(m,p)[1])) % p #moduli coprime so inverse exists for m mod p
         a=(a+m*k) % (m*p)# joining a mod m and b mod p gives a mod(mp)
         m *= p # mod mp
     return (a,m)

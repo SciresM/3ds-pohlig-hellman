@@ -54,8 +54,8 @@ def getPrivExponent(signature):
             coefficients[i] += c * mult # coefficient is Cn * pow(prime, n).
             mult *= prime # update multiplier to avoid annoying exponentiation every loop
             cnt += 1
-            if (cnt % (total / 100) == 0): # update progress if relevant
-                sys.stdout.write('%d%%\r' % (cnt / (total / 100)))
+            if (cnt % (total // 100) == 0): # update progress if relevant
+                sys.stdout.write('%d%%\r' % (cnt // (total // 100)))
                 sys.stdout.flush()
     
     print('\n')
