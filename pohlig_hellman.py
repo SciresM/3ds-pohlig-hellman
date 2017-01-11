@@ -1,6 +1,18 @@
+# Python 3 support
+from __future__ import print_function
+
 import sys
 from os.path import basename, splitext
 from crt import ChineseRemainder # http://anh.cs.luc.edu/331/code/crt.py
+from xgcd import xgcd
+
+
+# https://rosettacode.org/wiki/Modular_inverse#Python
+def modinv(a, m):
+    g, x, y = xgcd(a, m)
+    if g != 1:
+        raise ValueError
+    return x % m
 
 def getPrivExponent(signature):
     ''' Finds DiscreteLog(7, sig, X), where X is a predetermined modulus.
@@ -11,17 +23,16 @@ def getPrivExponent(signature):
     total = sum(pows)
     
     primepows = [pow(p, n) for p, n in zip(primes, pows)]
-    
-    # precomputed primitive root/modular inverse for our modulus.
-    # Sorry for the magic number :(
-    root = 7
-    invroot = 0x8c5e4273435fc1f5b3ad2d2492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492492493
 
     # compute the modulus on the fly to minimize magic numbers.
     modulus = 1
     for x in primepows:
         modulus *= x
     modulus += 1
+    
+    # precomputed primitive root for our modulus.
+    root = 7
+    invroot = modinv(root, modulus)
     
     smooth = modulus - 1 # order of the modulus
     
@@ -46,9 +57,9 @@ def getPrivExponent(signature):
                 sys.stdout.write('%d%%\r' % (cnt / (total / 100)))
                 sys.stdout.flush()
     
-    print '\n'
-    print 'all done!'
-    print '---'
+    print('\n')
+    print('all done!')
+    print('---')
 
     congruenceList = zip(coefficients, primepows)
     (x,m) = ChineseRemainder(congruenceList)
@@ -61,30 +72,30 @@ def save_bin(fn, dat):
     try:
         with open(fn, 'wb') as f:
             f.write(dat)
-        print 'Wrote data to %s!' % fn
+        print('Wrote data to %s!' % fn)
     except IOError:
-        print 'Failed to write data to %s!' % fn
+        print('Failed to write data to %s!' % fn)
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-        print 'Usage: python %s [signature.bin]' % sys.argv[0]
+        print('Usage: python %s [signature.bin]' % sys.argv[0])
     
     try:
         with open(sys.argv[1], 'rb') as f:
             sig = f.read()
     except IOError:
-        print >> sys.stderr, 'Failed to read signature from %s!' % sys.argv[1]
+        print('Failed to read signature from %s!' % sys.argv[1])
         sys.exit(-1)
     if len(sig) != 0x100:
-        print >> sys.stderr, 'Error: signature must be 0x100 bytes for RSA-2048!'
+        print('Error: signature must be 0x100 bytes for RSA-2048!')
         sys.exit(-1)
     
     sig_num = int(sig.encode('hex'), 16)
-    print 'Calculating discrete log for %X...' % sig_num
+    print('Calculating discrete log for %X...' % sig_num)
     privs = getPrivExponent(sig_num)
-    privs_hex = ['%0256X' % x for x in privs]
-    print 'Private Exponent: '
-    print ', or '.join(privs_hex)
+    privs_hex = ['%0512X' % x for x in privs]
+    print('Private Exponent: ')
+    print(', or '.join(privs_hex))
     
     bn = splitext(basename(sys.argv[1]))[0]
     if len(privs) == 1:
@@ -93,5 +104,5 @@ if __name__ == '__main__':
         for i in range(len(privs)):
             save_bin('%s_exp_%d.bin' % (bn, i), privs_hex[i].decode('hex'))
     
-    print 'All done!'
+    print('All done!')
     

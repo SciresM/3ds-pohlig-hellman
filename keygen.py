@@ -1,3 +1,6 @@
+# Python 3 support
+from __future__ import print_function
+
 import binascii
 import hashlib
 import sys
@@ -28,19 +31,19 @@ def generate_keys(d, n):
         n = int(n, 16)
 
     # Exponentiate it.
-    keys = hashlib.sha256(binascii.unhexlify('%0256X' % pow(asn1, d, n))).hexdigest().upper()
-    print '6.X 0x2F KeyY: %s' % keys[:0x20]
-    print '7.x 0x25 KeyX: %s' % keys[0x20:]
+    keys = hashlib.sha256(binascii.unhexlify('%0512X' % pow(asn1, d, n))).hexdigest().upper()
+    print('6.X 0x2F KeyY: %s' % keys[:0x20])
+    print('7.x 0x25 KeyX: %s' % keys[0x20:])
 
 if __name__ == '__main__':
     if not retail_exponent and not dev_exponent:
-        print 'Neither retail nor dev exponents are set up!'
-        print 'Please insert them before running the program.'
+        print('Neither retail nor dev exponents are set up!')
+        print('Please insert them before running the program.')
         sys.exit(0)
 
     if retail_exponent:
-        print 'Retail:'
+        print('Retail:')
         generate_keys(retail_exponent, retail_modulus)
     if dev_exponent:
-        print 'Dev:'
+        print('Dev:')
         generate_keys(dev_exponent, dev_modulus)
